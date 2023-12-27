@@ -1,0 +1,46 @@
+#include <FastLED.h>
+
+#define LED_PIN     16 // Define the pin to which your LEDs are connected
+#define NUM_LEDS    50  // Define the number of LEDs in your setup
+#define BRIGHTNESS  200  // Adjust the overall brightness
+
+CRGB leds[NUM_LEDS];
+
+void setup() {
+  FastLED.addLeds<WS2811, LED_PIN, RGB>(leds, NUM_LEDS);
+  FastLED.setBrightness(BRIGHTNESS);
+}
+
+// Function to generate a smooth flicker pattern for each LED
+void generateFlickerPattern(int flickerPatterns[NUM_LEDS][60]) {
+  for (int i = 0; i < NUM_LEDS; i++) {
+    for (int j = 0; j < 60; j++) {
+      flickerPatterns[i][j] = random(40, 100);  // Adjust the range based on your preferences
+    }
+  }
+}
+
+// Function to update the LED colors based on the flicker patterns
+void updateLedColors(int flickerPatterns[NUM_LEDS][60]) {
+  for (int i = 0; i < NUM_LEDS; i++) {
+    int flickerIndex = random(0, 10);
+    int brightness = flickerPatterns[i][flickerIndex];
+    leds[i] = CRGB(brightness, (165 * brightness) / 255, 0);  // Adjust values for orange color
+  }
+}
+
+void loop() {
+  static int flickerPatterns[NUM_LEDS][60];
+  generateFlickerPattern(flickerPatterns);
+
+  while (true) {
+    updateLedColors(flickerPatterns);
+    FastLED.show();
+
+    // Adjust the delay to control the speed of the flickering effect
+    delay(100);
+
+    // Uncomment the following line if you want to smooth the fading effect
+    // FastLED.delay(100);
+  }
+}
