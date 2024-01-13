@@ -62,7 +62,7 @@ void loop() {
         Serial.println(filteredReversedValue);
         prevFilteredValue = filteredReversedValue;
 
-        nextPattern(); // Call nextPattern only when filteredReversedValue is 255
+        nextPattern(); 
     }
 
     if (millis() - lastResetTime >= 1000) {
@@ -92,8 +92,6 @@ void nextPattern() {
     }
 }
 
-// ... (rest of the FastLED pattern functions remain unchanged)
-
 void rainbow() 
 {
   // FastLED's built-in rainbow generator
@@ -102,7 +100,7 @@ void rainbow()
 
 void rainbowWithGlitter() 
 {
-  // built-in FastLED rainbow, plus some random sparkly glitter
+
   rainbow();
   addGlitter(80);
 }
