@@ -13,7 +13,7 @@ unsigned long MAX_PULSE_WIDTH_MICROS = 4080;
 #define NUM_LEDS    50
 CRGB leds[NUM_LEDS];
 
-#define BRIGHTNESS          96
+int brightness = 255;
 #define FRAMES_PER_SECOND  120
 
 int reversedValue = 0;
@@ -21,6 +21,7 @@ int filteredReversedValue = 0;
 const int filterWindowSize = 5;
 int filterValues[filterWindowSize];
 int filterIndex = 0;
+bool is255;
 
 void setup() {
     Serial.begin(115200);
@@ -29,7 +30,7 @@ void setup() {
 
     delay(3000);
     FastLED.addLeds<LED_TYPE, DATA_PIN, COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
-    FastLED.setBrightness(BRIGHTNESS);
+    FastLED.setBrightness(brightness);
 }
 
 typedef void (*SimplePatternList)();
@@ -61,20 +62,24 @@ void loop() {
         Serial.print("Value: ");
         Serial.println(filteredReversedValue);
         prevFilteredValue = filteredReversedValue;
-
-        nextPattern(); 
+        if (filteredReversedValue == 255) {
+          is255 = true;
+          nextPattern(); 
+        }
+        else if (filteredReversedValue == 254){
+          fill_solid(leds, NUM_LEDS, CRGB::Blue);
+          FastLED.setBrightness(255);
+          is255 = false;
+        }
+        else if (filteredReversedValue == 253){
+          brightness = brightness - 50;
+          is255 = false;
+        }
     }
 
-    if (millis() - lastResetTime >= 1000) {
-        lastResetTime = millis();
-        filteredReversedValue = 0;
-    }
-
-    gPatterns[gCurrentPatternNumber]();
+    if(is255) gPatterns[gCurrentPatternNumber]();
     FastLED.show();
     FastLED.delay(1000 / FRAMES_PER_SECOND);
-    EVERY_N_MILLISECONDS(20) { gHue++; }
-    EVERY_N_SECONDS(10) { nextPattern(); }
 }
 
 void handleInterrupt() {
